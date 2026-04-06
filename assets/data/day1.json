@@ -1,0 +1,272 @@
+{
+  "day": 1,
+  "title": "硬件认识与机械组装",
+  "titleEn": "Hardware Assembly",
+  "layer": "硬件层",
+  "objectives": [
+    "说出电子狗核心模块的名称和功能",
+    "理解PWM、I2C、UART三种通信方式的区别",
+    "完成电子狗机械组装，通电后舵机有响应",
+    "养成嵌入式开发的安全意识"
+  ],
+  "schedule": [
+    { "time": "09:00-09:30", "duration": "30min", "title": "破冰 + 课程导入" },
+    { "time": "09:30-10:30", "duration": "60min", "title": "模块拆箱识别" },
+    { "time": "10:40-12:00", "duration": "80min", "title": "硬件原理讲解" },
+    { "time": "13:30-15:30", "duration": "120min", "title": "机械组装实操" },
+    { "time": "15:40-16:30", "duration": "50min", "title": "供电测试与排障" },
+    { "time": "16:30-17:00", "duration": "30min", "title": "总结与预告" }
+  ],
+  "cards": [
+    {
+      "id": "d1_c1",
+      "front": "STM32F103C8T6",
+      "frontSub": "主控芯片",
+      "back": "电子狗的「大脑」。蓝色/黑色小板，48针脚。ARM Cortex-M3，72MHz。负责协调所有模块工作，运行主程序。",
+      "tags": ["芯片", "核心"]
+    },
+    {
+      "id": "d1_c2",
+      "front": "ASRPRO2.0",
+      "frontSub": "语音识别芯片",
+      "back": "电子狗的「耳朵和嘴巴」。白色小板，带麦克风和喇叭接口。240MHz神经网络处理器，完全离线识别语音命令，不需要联网。响应延迟 <100ms。",
+      "tags": ["芯片", "核心", "语音"]
+    },
+    {
+      "id": "d1_c3",
+      "front": "UART 串口通信",
+      "frontSub": "Universal Asynchronous Receiver-Transmitter",
+      "back": "两根线（TX / RX），一对一通信。TX必须接对方RX，RX必须接对方TX（交叉连接！）。常用波特率：9600bps / 115200bps。用于STM32与ASRPRO、蓝牙模块通信。",
+      "tags": ["通信协议"]
+    },
+    {
+      "id": "d1_c4",
+      "front": "I2C 总线",
+      "frontSub": "Inter-Integrated Circuit",
+      "back": "两根线（SCL时钟 + SDA数据），可挂多个设备。每个设备有唯一地址（如OLED: 0x3C，AHT20: 0x38，BMP280: 0x76）。STM32先发地址，只有匹配的设备响应。",
+      "tags": ["通信协议"]
+    },
+    {
+      "id": "d1_c5",
+      "front": "PWM 舵机控制",
+      "frontSub": "Pulse Width Modulation",
+      "back": "一根信号线，20ms一个周期。通过改变高电平时间控制角度：0.5ms→0°，1.5ms→90°（站立），2.5ms→180°。电子狗有5个舵机：4条腿(PA0/PA1/PA6/PA7) + 1尾巴(PB5)。",
+      "tags": ["通信协议", "舵机"]
+    },
+    {
+      "id": "d1_c6",
+      "front": "锂电池安全 + 3.3V规范",
+      "frontSub": "Safety First",
+      "back": "锂电池：标称3.7V，满充4.2V，放完不可低于3.0V。充电严格5V，最高2A，严禁9V。3.3V敏感模块：AHT20、BMP280、ESP01s — 接5V立即烧毁！建议用红色杜邦线标记3.3V线路。",
+      "tags": ["安全", "电源"]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "d1_q1",
+      "question": "电子狗有三块核心芯片，分别是什么？各自负责什么功能？",
+      "answer": "① STM32F103C8T6 — 主控大脑，协调所有模块\n② ASRPRO2.0 — 语音识别，完全离线\n③ ESP32C3mini — WiFi联网，连接云端大模型",
+      "tags": ["芯片"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q2",
+      "question": "UART通信需要几根线？分别叫什么？接线时最容易犯的错误是什么？",
+      "answer": "2根线：TX（发送）和RX（接收）。\n最容易犯的错误：TX接TX、RX接RX。\n正确规则：TX必须接对方的RX，交叉连接！",
+      "tags": ["UART", "通信协议"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q3",
+      "question": "I2C总线上挂了多个设备，STM32怎么知道自己在跟哪个设备说话？",
+      "answer": "每个I2C设备有唯一的地址。STM32每次通信先发送设备地址，只有地址匹配的设备才会响应。例如 OLED 地址是 0x3C，AHT20 地址是 0x38。",
+      "tags": ["I2C", "通信协议"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q4",
+      "question": "PWM控制舵机时，脉宽1.5ms对应多少度？这个角度代表电子狗的什么姿势？",
+      "answer": "1.5ms 对应 90°，代表电子狗的「站立」姿势。\n完整对应：0.5ms→0°，1.5ms→90°（站立），2.5ms→180°。",
+      "tags": ["PWM", "舵机"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q5",
+      "question": "锂电池充电有什么规范？最高允许多大电流？",
+      "answer": "充电电压：严格5V。\n允许电流：最高2A（5V=1A 或 5V=2A）。\n严禁：超过2A 或 使用9V充电器。\n电池电压不可低于3.0V，否则永久损坏。",
+      "tags": ["安全", "电源"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q6",
+      "question": "哪三个模块只能接3.3V？接了5V会怎样？",
+      "answer": "① AHT20+BMP280（温湿度气压传感器）\n② ESP01s（WiFi模块，ESP8266EX）\n接了5V会立即烧毁！建议用红色杜邦线标记3.3V线路。",
+      "tags": ["安全", "电源"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d1_q7",
+      "question": "舵机安装前必须先做什么？为什么不能直接装进去？",
+      "answer": "必须先通电，把舵机转到90°中位，再断电装入关节座。\n如果不校正直接装，腿的初始姿势可能是歪的，后面很难校正。",
+      "tags": ["舵机", "组装"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d1_q8",
+      "question": "通电前用万用表应该测什么？什么结果说明安全？",
+      "answer": "测量GND和VCC之间的阻值。\n阻值 >10kΩ → 安全，可以通电。\n阻值接近0 → 短路！必须找到问题再通电。",
+      "tags": ["安全", "排障"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d1_q9",
+      "question": "PCB接线为什么要从电源开始接，而不是随便从哪里开始？",
+      "answer": "先把电源路径理清楚，确认电压正确后再接信号线。\n如果信号线先接好，最后接电源时一通电，万一哪根线接错了，芯片瞬间就烧毁。先理清电源，出错了还有机会补救。",
+      "tags": ["安全", "组装"],
+      "difficulty": "medium"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "d1_cl1",
+      "phase": "A",
+      "title": "认识PCB",
+      "items": [
+        "找到STM32插槽位置（左上区）",
+        "找到ASRPRO插槽位置（右上区）",
+        "找到OLED/ESP32C3插槽（中间区）",
+        "找到电源区（充放电模块+升压模块）"
+      ]
+    },
+    {
+      "id": "d1_cl2",
+      "phase": "B",
+      "title": "3D打印外壳安装",
+      "items": [
+        "身体主框架固定",
+        "左右侧板固定",
+        "头部OLED安装座",
+        "4条腿的关节座安装",
+        "尾巴支架安装"
+      ]
+    },
+    {
+      "id": "d1_cl3",
+      "phase": "C",
+      "title": "舵机安装",
+      "items": [
+        "确认舵机线颜色：棕=GND，红=5V，橙=信号",
+        "舵机先转到90°中位",
+        "4条腿舵机固定到关节座",
+        "尾巴舵机安装到后方中央"
+      ]
+    },
+    {
+      "id": "d1_cl4",
+      "phase": "D",
+      "title": "PCB布线与通电",
+      "items": [
+        "锂电池→充放电模块（红正黑负）",
+        "充放电模块5V→升压模块",
+        "升压模块5V→STM32/舵机",
+        "升压模块3.3V→敏感模块（AHT20/BMP280/ESP01s）",
+        "所有GND共地确认",
+        "万用表测GND-VCC阻值>10kΩ",
+        "首次通电：STM32灯亮+OLED显示+ASRPRO启动声"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "d1_g1",
+      "title": "芯片配对",
+      "desc": "把三块核心芯片与它们的功能配对",
+      "icon": "🧩",
+      "type": "match",
+      "data": {
+        "instruction": "将左边的芯片名称与右边的功能描述配对连线",
+        "pairs": [
+          { "id": "p1", "left": "STM32F103C8T6", "right": "主控大脑，协调所有模块" },
+          { "id": "p2", "left": "ASRPRO2.0", "right": "语音识别，离线AI" },
+          { "id": "p3", "left": "ESP32C3mini", "right": "WiFi联网，云端AI" },
+          { "id": "p4", "left": "UART", "right": "TX/RX两根线，交叉连接" },
+          { "id": "p5", "left": "I2C", "right": "SCL+SDA，地址区分设备" },
+          { "id": "p6", "left": "PWM", "right": "脉宽调制，控制舵机角度" }
+        ]
+      }
+    },
+    {
+      "id": "d1_g2",
+      "title": "接线纠错",
+      "desc": "找出电路接线中的错误",
+      "icon": "🔍",
+      "type": "wiring_check",
+      "data": {
+        "scenarios": [
+          {
+            "instruction": "以下UART接线哪里有问题？",
+            "diagram": "STM32         ASRPRO\n  TX  ────────  TX\n  RX  ────────  RX\n  GND ────────  GND",
+            "options": [
+              { "text": "TX应该接对方的RX（交叉连接）", "correct": true },
+              { "text": "缺少VCC电源线", "correct": false },
+              { "text": "GND不应该相连", "correct": false }
+            ],
+            "explanation": "UART必须交叉连接：TX→RX，RX→TX！同名直连是最常见的错误。"
+          },
+          {
+            "instruction": "ESP01s模块接到了5V电源，会怎样？",
+            "diagram": "升压模块 5V ──── ESP01s VCC\n         GND ──── ESP01s GND\n         (CH_PD 悬空)",
+            "options": [
+              { "text": "正常工作", "correct": false },
+              { "text": "ESP01s会烧毁，且CH_PD需接高电平", "correct": true },
+              { "text": "只是无法联网", "correct": false }
+            ],
+            "explanation": "ESP01s是3.3V模块，接5V会立即烧毁！另外CH_PD必须接高电平才能工作。"
+          },
+          {
+            "instruction": "舵机接线颜色对应关系，哪个是正确的？",
+            "diagram": "舵机线有三根颜色：\n  棕色、红色、橙色",
+            "options": [
+              { "text": "棕=信号，红=GND，橙=5V", "correct": false },
+              { "text": "棕=GND，红=5V，橙=信号", "correct": true },
+              { "text": "棕=5V，红=信号，橙=GND", "correct": false }
+            ],
+            "explanation": "舵机线标准颜色：棕=GND，红=VCC(5V)，橙=信号(PWM)。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d1_g3",
+      "title": "组装排序",
+      "desc": "把组装步骤排列成正确顺序",
+      "icon": "📋",
+      "type": "sorting",
+      "data": {
+        "instruction": "将电子狗组装步骤拖拽到正确的顺序",
+        "steps": [
+          { "id": "s1", "text": "① 安装底盘框架和腿部支架" },
+          { "id": "s2", "text": "② 所有舵机先转到90°中位" },
+          { "id": "s3", "text": "③ 将舵机安装到各关节" },
+          { "id": "s4", "text": "④ 布线：锂电池→充放电→升压模块" },
+          { "id": "s5", "text": "⑤ 万用表测GND-VCC阻值>10kΩ" },
+          { "id": "s6", "text": "⑥ 首次通电测试" }
+        ]
+      }
+    }
+  ],
+  "summary": [
+    { "keyword": "UART", "oneliner": "两根线，TX接RX，最简单的串口通信" },
+    { "keyword": "I2C", "oneliner": "两根线挂多个设备，用地址区分" },
+    { "keyword": "PWM", "oneliner": "一根信号线，用脉宽控制舵机角度" },
+    { "keyword": "舵机", "oneliner": "0.5ms=0°，1.5ms=90°，2.5ms=180°" },
+    { "keyword": "锂电池", "oneliner": "最高5V=2A充电，永远不能低于3V" },
+    { "keyword": "3.3V模块", "oneliner": "AHT20/BMP280/ESP01s 严禁接5V！" }
+  ],
+  "teacherNotes": [
+    { "topic": "UART接线", "note": "最常见错误是TX接TX，需反复强调交叉连接。建议画图演示。" },
+    { "topic": "3.3V安全", "note": "每年都有学生烧ESP01s，建议发红色杜邦线做标记。" },
+    { "topic": "舵机中位", "note": "必须巡视每组是否在安装前校准了90°，否则后面动作全偏。" },
+    { "topic": "锂电池", "note": "带一个烧毁的充电模块做反面教材。强调闻到焦味立刻断电。" }
+  ]
+}

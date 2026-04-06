@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI电子狗 Workshop — 互动学习平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Onboarding -->
+  <div id="onboarding" class="overlay hidden">
+    <div class="onboarding-card animate-slide">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🤖</div>
+      <h2>AI电子狗 Workshop</h2>
+      <p class="subtitle">4天全链路实践 — 从零组装你的AI机器狗</p>
+      <input type="text" id="studentName" placeholder="你的姓名" maxlength="20">
+      <input type="text" id="studentGroup" placeholder="组号（如：第3组）" maxlength="10">
+      <button id="startBtn" class="btn btn-primary btn-lg" disabled>开始学习</button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <span class="logo"><span class="logo-icon">🤖</span> <span class="glow-text">AI电子狗</span></span>
+      <span id="studentInfo" class="student-badge"></span>
+    </div>
+    <div class="header-right">
+      <button id="themeToggle" title="切换主题">🌙</button>
+      <button id="glossaryToggle" class="btn btn-ghost btn-sm">📖 词汇表</button>
+      <a href="teacher.html" class="btn btn-ghost btn-sm">👨‍🏫 教师端</a>
+    </div>
+  </header>
+
+  <!-- Day Navigation -->
+  <nav id="dayNav">
+    <button class="day-tab" data-day="0">
+      <span class="day-num">Day 0</span>
+      <span class="day-label">预习</span>
+      <span class="day-progress" id="prog0"></span>
+    </button>
+    <button class="day-tab active" data-day="1">
+      <span class="day-num">Day 1</span>
+      <span class="day-label">硬件层</span>
+      <span class="day-progress" id="prog1"></span>
+    </button>
+    <button class="day-tab" data-day="2">
+      <span class="day-num">Day 2</span>
+      <span class="day-label">固件层</span>
+      <span class="day-progress" id="prog2"></span>
+    </button>
+    <button class="day-tab" data-day="3">
+      <span class="day-num">Day 3</span>
+      <span class="day-label">感知层</span>
+      <span class="day-progress" id="prog3"></span>
+    </button>
+    <button class="day-tab" data-day="4">
+      <span class="day-num">Day 4</span>
+      <span class="day-label">智能层</span>
+      <span class="day-progress" id="prog4"></span>
+    </button>
+  </nav>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <main id="content">
+
+      <!-- Achievements Bar -->
+      <div class="achievements-bar" id="achievementsBar"></div>
+
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step active" data-step="learn">
+          <span class="step-num">1</span>
+          <span class="step-text">学 · 知识卡片</span>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step" data-step="game">
+          <span class="step-num">2</span>
+          <span class="step-text">玩 · 互动游戏</span>
+          <span class="lock-icon">🔒</span>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step" data-step="quiz">
+          <span class="step-num">3</span>
+          <span class="step-text">练 · 问答闯关</span>
+          <span class="lock-icon">🔒</span>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step" data-step="checklist">
+          <span class="step-num">4</span>
+          <span class="step-text">做 · 操作清单</span>
+          <span class="lock-icon">🔒</span>
+        </div>
+      </div>
+
+      <!-- Objectives -->
+      <section id="objectives" class="card animate-in">
+        <h2 class="card-title">
+          <span id="dayTitle"></span>
+          <span id="dayLayer" class="badge badge-cyan"></span>
+        </h2>
+        <h3 style="font-size:0.9rem;color:var(--text-muted);margin-bottom:8px;">今日目标</h3>
+        <ul id="objectiveList"></ul>
+      </section>
+
+      <!-- Step 1: Knowledge Cards -->
+      <section id="learnSection">
+        <h3 class="section-title">Step 1 — 知识卡片 <span id="cardProgress" class="progress-text"></span></h3>
+        <div id="cardsGrid" class="cards-grid"></div>
+        <div id="allCardsViewed" class="unlock-notice hidden">
+          全部卡片已查看！Step 2「互动游戏」已解锁 🎮
+        </div>
+      </section>
+
+      <!-- Step 2: Interactive Games -->
+      <section id="gameSection" class="games-section hidden">
+        <h3 class="section-title">Step 2 — 互动游戏 <span id="gameProgress" class="progress-text"></span></h3>
+        <div id="gamesGrid" class="games-grid"></div>
+        <div id="allGamesCompleted" class="unlock-notice hidden">
+          全部游戏完成！Step 3「问答闯关」已解锁 🏆
+        </div>
+      </section>
+
+      <!-- Step 3: Quiz -->
+      <section id="quizSection" class="hidden">
+        <h3 class="section-title">Step 3 — 问答闯关 <span id="quizProgress" class="progress-text"></span></h3>
+        <div id="quizArea">
+          <div id="quizCard" class="quiz-card">
+            <div class="quiz-number">第 <span id="quizNum">1</span> 题 / <span id="quizTotal">9</span></div>
+            <div class="quiz-tags" id="quizTags"></div>
+            <p class="quiz-question" id="quizQuestion"></p>
+            <textarea id="quizNote" class="quiz-note" placeholder="写下你的思考（可选）..."></textarea>
+            <button id="showAnswerBtn" class="btn btn-primary">显示答案</button>
+            <div id="quizAnswer" class="quiz-answer hidden">
+              <h4>参考答案</h4>
+              <pre id="answerText"></pre>
+              <div class="self-rate">
+                <span>掌握程度：</span>
+                <button class="rate-btn rate-correct" data-rate="correct">✓ 会了</button>
+                <button class="rate-btn rate-fuzzy" data-rate="fuzzy">⚠ 模糊</button>
+                <button class="rate-btn rate-wrong" data-rate="wrong">✗ 不会</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="quizComplete" class="hidden">
+          <div class="quiz-summary card">
+            <h3>闯关完成！</h3>
+            <div class="summary-stats">
+              <div class="stat correct"><span class="stat-num" id="statCorrect">0</span><span class="stat-label">✓ 会了</span></div>
+              <div class="stat fuzzy"><span class="stat-num" id="statFuzzy">0</span><span class="stat-label">⚠ 模糊</span></div>
+              <div class="stat wrong"><span class="stat-num" id="statWrong">0</span><span class="stat-label">✗ 不会</span></div>
+            </div>
+            <div id="reviewList" class="review-list"></div>
+            <button id="generateCodeBtn" class="btn btn-primary" style="margin-top:12px;">生成进度码（交给老师）</button>
+            <div id="progressCode" class="progress-code hidden">
+              <textarea id="codeText" readonly></textarea>
+              <button id="copyCodeBtn" class="btn btn-ghost btn-sm" style="margin-top:6px;">复制</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Checklist -->
+      <section id="checklistSection" class="hidden">
+        <h3 class="section-title">Step 4 — 操作清单 <span id="checklistProgress" class="progress-text"></span></h3>
+        <div id="checklistArea"></div>
+      </section>
+
+      <!-- Troubleshooting Tree (Day 3+) -->
+      <section id="troubleshootSection" class="hidden">
+        <h3 class="section-title">🔧 故障排查引导</h3>
+        <div id="troubleshootTree" class="troubleshoot-tree"></div>
+      </section>
+
+      <!-- Summary -->
+      <section id="summarySection" class="card hidden">
+        <h3>今日一句话总结</h3>
+        <div id="summaryCards" class="summary-cards"></div>
+      </section>
+
+    </main>
+
+    <!-- Glossary Sidebar -->
+    <aside id="glossary" class="glossary hidden">
+      <div class="glossary-header">
+        <h3>📖 词汇表 Glossary</h3>
+        <input type="text" id="glossarySearch" placeholder="搜索术语...">
+        <button id="glossaryClose" class="game-modal-close">&times;</button>
+      </div>
+      <div id="glossaryList" class="glossary-list"></div>
+    </aside>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-progress">
+      <span id="footerDay">Day 1</span>
+      <div class="progress-bar"><div class="progress-fill" id="footerProgressBar"></div></div>
+      <span id="footerPercent">0%</span>
+    </div>
+  </footer>
+
+  <!-- Game Modal -->
+  <div id="gameModal" class="game-modal hidden">
+    <div class="game-modal-content">
+      <div class="game-modal-header">
+        <h3 id="gameModalTitle">游戏</h3>
+        <button id="gameModalClose" class="game-modal-close">&times;</button>
+      </div>
+      <div class="game-modal-body" id="gameModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Audio elements for sound effects -->
+  <audio id="sfxCorrect" preload="auto" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAgICAgICAgICAgICAgICAgICAfnx6eHh4enx+gIKEhoiIiIiGhIKAgH5+fn5+gIKEhoaIiIiGhoSCgH5+fn6AgIKEhIaGhoaGhIKAgICAgA=="></audio>
+  <audio id="sfxWrong" preload="auto" src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACAgICBgoODg4KBgH99fHt7fH1/gYOFh4eHhoWDgX99fHt7fH5/gYOFhoaGhYSDgX99fXx8fX+BgoSFhYWEg4KAfn19fX1+gIGDhIWFhISDgYB+fX19fX5/gYKDhISEg4KBf359fX19fn+AgYKDg4ODgoGAfn19fX1+f4CBgoODg4KBgH9+fX19fX5/gA=="></audio>
+
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/games.js"></script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+{
+  "day": 3,
+  "title": "传感器融合与蓝牙控制",
+  "titleEn": "Sensors & Bluetooth",
+  "layer": "感知层",
+  "objectives": [
+    "读取BMP280/AHT20的温度、湿度、气压数据",
+    "解析JW01-3in1的CO₂/甲醛/TVOC数值",
+    "配置JDY-31蓝牙模块，用手机控制电子狗",
+    "理解ADC模拟采集原理，读取GP2Y红外测距"
+  ],
+  "schedule": [
+    { "time": "09:00-09:20", "duration": "20min", "title": "Day 2复习 + Q&A" },
+    { "time": "09:20-10:30", "duration": "70min", "title": "AHT20+BMP280 环境传感器" },
+    { "time": "10:40-12:00", "duration": "80min", "title": "JW01空气质量 + GP2Y红外" },
+    { "time": "13:30-14:30", "duration": "60min", "title": "JDY-31蓝牙配置" },
+    { "time": "14:30-15:30", "duration": "60min", "title": "手机蓝牙控制实现" },
+    { "time": "15:40-16:30", "duration": "50min", "title": "综合联调 + 创意扩展" },
+    { "time": "16:30-17:00", "duration": "30min", "title": "演示 + 总结" }
+  ],
+  "cards": [
+    {
+      "id": "d3_c1",
+      "front": "AHT20 + BMP280",
+      "frontSub": "温湿度气压传感器",
+      "back": "AHT20测温度(±0.3℃)和湿度(±2%RH)。BMP280测大气压(±1hPa)和海拔估算。I2C通信：AHT20地址0x38，BMP280地址0x76。严格3.3V供电！BMP280温度不准（受PCB散热影响），用AHT20的温度值。",
+      "tags": ["传感器", "I2C"]
+    },
+    {
+      "id": "d3_c2",
+      "front": "JW01-3in1 空气质量",
+      "frontSub": "CO₂ / HCHO / TVOC",
+      "back": "UART 9600bps通信。检测CO₂(350-2000ppm)、甲醛HCHO、TVOC。需预热约2分钟。9字节数据帧：帧头[2C][E4] + 数据(高字节×256+低字节) + 校验和。CO₂超过1000ppm建议通风。",
+      "tags": ["传感器", "UART"]
+    },
+    {
+      "id": "d3_c3",
+      "front": "ADC 模数转换",
+      "frontSub": "Analog-to-Digital Converter",
+      "back": "传感器输出连续变化的模拟电压(0~3.3V)，STM32只能读数字量。ADC将模拟电压转为数字值(0~4095)。满量程4095=3.3V，ADC值2048≈1.65V。GP2Y红外测距：距离越近→电压越高→ADC值越大。",
+      "tags": ["ADC", "GP2Y"]
+    },
+    {
+      "id": "d3_c4",
+      "front": "JDY-31 蓝牙 SPP",
+      "frontSub": "Serial Port Profile 透传",
+      "back": "蓝牙3.0 SPP协议：完全透传——手机发什么字符串，STM32就收什么。协议就是@动作码#$。接线：TXD→PB11(RX)，RXD→PB10(TX)。AT指令配置：AT+NAME=名称，AT+PIN=密码。iOS不支持，仅安卓。",
+      "tags": ["蓝牙", "通信"]
+    },
+    {
+      "id": "d3_c5",
+      "front": "持续运动 vs 单次触发",
+      "frontSub": "蓝牙 vs 语音的区别",
+      "back": "语音命令 = 单次触发：说一次「立正」，执行一次。\n蓝牙控制 = 持续运动：按住「前进」持续走，松开停止。\n设计技巧：按下=动作码，松开=趴下(@PAXIA#$)。",
+      "tags": ["蓝牙", "语音"]
+    },
+    {
+      "id": "d3_c6",
+      "front": "传感器数据OLED循环显示",
+      "frontSub": "5步循环流程",
+      "back": "循环 {\n  ① 读取数据（AHT20温度/湿度，BMP280气压）\n  ② 清屏\n  ③ 显示文字（温度/湿度/气压/海拔各一行）\n  ④ OLED刷新（必须！）\n  ⑤ 延时1000ms\n}\n每次循环必须先清屏再显示，否则新旧数据叠加变乱码。",
+      "tags": ["OLED", "编程"]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "d3_q1",
+      "question": "AHT20+BMP280模块能测量哪4种数据？",
+      "answer": "① 温度（AHT20，±0.3℃）\n② 湿度（AHT20，±2%RH）\n③ 大气压强（BMP280，±1hPa）\n④ 海拔估算（BMP280，由气压换算）",
+      "tags": ["传感器"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q2",
+      "question": "BMP280也能测温度，为什么不用它的温度数据？",
+      "answer": "BMP280焊在PCB电路板上，PCB本身会发热，导致温度读数偏高约2-5℃。所以温度统一用AHT20读取，更准确。",
+      "tags": ["传感器"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q3",
+      "question": "JW01-3in1能检测哪3种空气指标？",
+      "answer": "① CO₂ 二氧化碳（350-2000ppm）\n② HCHO 甲醛（0-1mg/m³）\n③ TVOC 总挥发性有机物（0-2mg/m³）",
+      "tags": ["传感器", "JW01"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q4",
+      "question": "JW01使用前需要做什么？需要多久？",
+      "answer": "需要预热约2分钟。传感器内部化学元件需达到工作温度才能输出准确数值，跳过预热数据是乱的。",
+      "tags": ["传感器", "JW01"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q5",
+      "question": "ADC的作用是什么？满量程4095对应多少V？",
+      "answer": "ADC将模拟电压（连续变化的数值）转换为数字量（0-4095），让STM32能读取。满量程4095对应3.3V。",
+      "tags": ["ADC"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q6",
+      "question": "GP2Y红外测距模块：障碍物越近，ADC值越大还是越小？",
+      "answer": "越大。\n距离越近 → 电压越高 → ADC值越大。\n距离越远 → 电压越低 → ADC值越小。",
+      "tags": ["ADC", "GP2Y"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q7",
+      "question": "蓝牙SPP透传是什么意思？",
+      "answer": "完全透传 = 手机发什么字符串，STM32就收到什么字符串，没有任何中间处理。协议完全自定义，就是@动作码#$格式。",
+      "tags": ["蓝牙"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d3_q8",
+      "question": "蓝牙控制和语音控制，哪个用「持续运动」？哪个用「单次触发」？为什么？",
+      "answer": "蓝牙 = 持续运动（按住按钮一直走，松开停止，符合遥控直觉）\n语音 = 单次触发（说一次执行一次，不需要一直重复）",
+      "tags": ["蓝牙", "语音"],
+      "difficulty": "easy"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "d3_cl1",
+      "phase": "A",
+      "title": "环境传感器",
+      "items": [
+        "AHT20+BMP280接到3.3V（非5V！）",
+        "OLED实时显示温度/湿度/气压/海拔",
+        "语音查温度能播报"
+      ]
+    },
+    {
+      "id": "d3_cl2",
+      "phase": "B",
+      "title": "空气质量 + 红外",
+      "items": [
+        "JW01预热2分钟后CO₂显示正常",
+        "GP2Y手靠近时OLED显示有障碍"
+      ]
+    },
+    {
+      "id": "d3_cl3",
+      "phase": "C",
+      "title": "蓝牙控制",
+      "items": [
+        "AT+NAME修改蓝牙名称成功",
+        "手机App连接蓝牙成功",
+        "手机控制前进/后退/左转/右转正常",
+        "语音+蓝牙同时工作互不干扰"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "d3_g1",
+      "title": "传感器数据解读",
+      "desc": "看懂传感器读数，做出判断",
+      "icon": "📊",
+      "type": "sensor_reading",
+      "data": {
+        "questions": [
+          {
+            "scenario": "教室里的电子狗传感器显示以下数据：",
+            "readings": [
+              { "label": "温度 (AHT20)", "value": "26.5°C" },
+              { "label": "湿度 (AHT20)", "value": "65%RH" },
+              { "label": "CO₂ (JW01)", "value": "1350 ppm" },
+              { "label": "气压 (BMP280)", "value": "1013 hPa" }
+            ],
+            "question": "根据这些数据，最应该做什么？",
+            "options": [
+              { "text": "开空调降温", "correct": false },
+              { "text": "打开窗户通风（CO₂超过1000ppm）", "correct": true },
+              { "text": "关窗户（气压正常）", "correct": false },
+              { "text": "开除湿机", "correct": false }
+            ],
+            "explanation": "CO₂超过1000ppm建议通风！26.5°C和65%RH都在正常范围。"
+          },
+          {
+            "scenario": "BMP280显示温度28°C，AHT20显示温度25.3°C：",
+            "readings": [
+              { "label": "BMP280 温度", "value": "28.0°C" },
+              { "label": "AHT20 温度", "value": "25.3°C" }
+            ],
+            "question": "哪个温度更准确？为什么？",
+            "options": [
+              { "text": "BMP280的，因为它更贵", "correct": false },
+              { "text": "AHT20的，BMP280受PCB散热影响温度偏高", "correct": true },
+              { "text": "取两个的平均值", "correct": false }
+            ],
+            "explanation": "BMP280的温度受PCB板散热影响不准确，实际温度应以AHT20为准。"
+          },
+          {
+            "scenario": "GP2Y红外测距传感器返回ADC值：",
+            "readings": [
+              { "label": "GP2Y ADC值", "value": "3200" }
+            ],
+            "question": "这表示障碍物距离大约？",
+            "options": [
+              { "text": "很远（>50cm）", "correct": false },
+              { "text": "很近（<10cm），ADC值越大距离越近", "correct": true },
+              { "text": "中等距离（约30cm）", "correct": false }
+            ],
+            "explanation": "GP2Y红外测距：距离越近→反射电压越高→ADC值越大。3200/4095≈78%满量程，表示障碍物很近。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3_g2",
+      "title": "ADC转换计算",
+      "desc": "练习模数转换的计算",
+      "icon": "🔢",
+      "type": "adc_calc",
+      "data": {
+        "challenges": [
+          {
+            "question": "满量程3.3V对应ADC值4095。如果传感器输出1.65V，ADC值大约是多少？",
+            "answer": 2048,
+            "unit": "",
+            "tolerance": 0.02,
+            "explanation": "1.65V / 3.3V × 4095 ≈ 2048（正好是满量程的一半）"
+          },
+          {
+            "question": "ADC读数为1000，对应的电压大约是多少伏？（保留1位小数）",
+            "answer": 0.8,
+            "unit": "V",
+            "tolerance": 0.1,
+            "explanation": "1000 / 4095 × 3.3V ≈ 0.806V ≈ 0.8V"
+          },
+          {
+            "question": "GP2Y测距ADC值从500变到3000，障碍物是靠近了还是远离了？输入1=靠近，0=远离",
+            "answer": 1,
+            "unit": "",
+            "tolerance": 0,
+            "explanation": "ADC值变大说明电压升高，GP2Y距离越近电压越高，所以障碍物在靠近。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d3_g3",
+      "title": "蓝牙 vs 语音",
+      "desc": "区分蓝牙控制和语音控制的模式",
+      "icon": "📱",
+      "type": "match",
+      "data": {
+        "instruction": "将控制方式与对应的特性配对",
+        "pairs": [
+          { "id": "p1", "left": "说「前进」", "right": "单次触发，执行一次" },
+          { "id": "p2", "left": "按住「前进」按钮", "right": "持续运动，松开停止" },
+          { "id": "p3", "left": "ASRPRO识别", "right": "离线工作，不需网络" },
+          { "id": "p4", "left": "JDY-31蓝牙", "right": "SPP透传，仅安卓" },
+          { "id": "p5", "left": "蓝牙松开按钮", "right": "发送@PAXIA#$趴下" }
+        ]
+      }
+    }
+  ],
+  "summary": [
+    { "keyword": "I2C多设备", "oneliner": "同一总线挂多个设备，用地址区分（OLED:0x3C，AHT20:0x38）" },
+    { "keyword": "数据帧解析", "oneliner": "JW01帧头[2C][E4]，高字节×256+低字节得实际值" },
+    { "keyword": "ADC采集", "oneliner": "模拟电压(0-3.3V)→数字值(0-4095)，距离越近值越大" },
+    { "keyword": "蓝牙SPP", "oneliner": "完全透传，手机发什么STM32收什么" },
+    { "keyword": "持续运动", "oneliner": "蓝牙按住一直执行，与语音单次触发不同" },
+    { "keyword": "预热", "oneliner": "JW01需2分钟预热才能输出准确数值" }
+  ],
+  "teacherNotes": [
+    { "topic": "3.3V", "note": "再次强调AHT20+BMP280只能3.3V，每年都有Day3才烧的。" },
+    { "topic": "JW01预热", "note": "提前2分钟给JW01上电预热，避免课上干等。" },
+    { "topic": "iOS不支持", "note": "JDY-31是蓝牙3.0，iOS仅支持BLE。确保每组至少有一台安卓手机。" },
+    { "topic": "CO₂数值", "note": "课堂门窗关闭时CO₂很容易超1000ppm，可以用来做实验演示。" }
+  ]
+}

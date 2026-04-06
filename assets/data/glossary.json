@@ -1,0 +1,22 @@
+[
+  { "term": "STM32", "fullName": "STM32F103C8T6", "chinese": "主控芯片", "definition": "ARM Cortex-M3 微控制器，72MHz，电子狗的大脑，协调所有模块。", "usedIn": ["Day1", "Day2", "Day3", "Day4"] },
+  { "term": "ASRPRO", "fullName": "ASRPRO2.0", "chinese": "离线语音AI芯片", "definition": "240MHz神经网络处理器，完全离线识别语音，响应<100ms。", "usedIn": ["Day1", "Day2"] },
+  { "term": "ESP32C3", "fullName": "ESP32C3mini", "chinese": "WiFi AI模块", "definition": "RISC-V芯片，WiFi+BLE5.0，连接云端大模型进行AI对话。", "usedIn": ["Day1", "Day4"] },
+  { "term": "ESP01s", "fullName": "ESP8266EX", "chinese": "WiFi模块", "definition": "通过AT指令发送HTTP请求，获取时间和天气数据。严格3.3V！", "usedIn": ["Day4"] },
+  { "term": "UART", "fullName": "Universal Asynchronous Receiver-Transmitter", "chinese": "串口通信", "definition": "两根线(TX/RX)一对一通信。TX接对方RX，交叉连接。", "usedIn": ["Day1", "Day2", "Day3"] },
+  { "term": "I2C", "fullName": "Inter-Integrated Circuit", "chinese": "集成电路总线", "definition": "两根线(SCL+SDA)挂多个设备，用唯一地址区分。", "usedIn": ["Day1", "Day2", "Day3"] },
+  { "term": "PWM", "fullName": "Pulse Width Modulation", "chinese": "脉冲宽度调制", "definition": "一根信号线，20ms周期，用脉宽控制舵机角度(0.5ms=0°, 1.5ms=90°, 2.5ms=180°)。", "usedIn": ["Day1", "Day2"] },
+  { "term": "ADC", "fullName": "Analog-to-Digital Converter", "chinese": "模数转换", "definition": "将模拟电压(0~3.3V)转为数字量(0~4095)。GP2Y测距用ADC采集。", "usedIn": ["Day3"] },
+  { "term": "SPP", "fullName": "Serial Port Profile", "chinese": "蓝牙串口透传", "definition": "JDY-31蓝牙协议，手机发什么STM32就收什么，完全透明。", "usedIn": ["Day3"] },
+  { "term": "MG90S", "fullName": "MG90S Metal Gear Servo", "chinese": "金属齿轮舵机", "definition": "0-180°转动，5V供电，2.0kg·cm力矩。电子狗共5个(4腿+尾)。", "usedIn": ["Day1", "Day2"] },
+  { "term": "OLED", "fullName": "Organic LED Display", "chinese": "有机发光显示屏", "definition": "1.3寸SH1106，I2C地址0x3C。显示文字/表情，每次修改后必须刷新。", "usedIn": ["Day1", "Day2", "Day3"] },
+  { "term": "PCB", "fullName": "Printed Circuit Board", "chinese": "印刷电路板", "definition": "10代专用主板，已预设各模块焊盘，取代面包板。", "usedIn": ["Day1"] },
+  { "term": "AT指令", "fullName": "Attention Command", "chinese": "注意力指令", "definition": "配置蓝牙/WiFi模块的文本命令。如AT+NAME=TengDog, AT+CWJAP连WiFi。", "usedIn": ["Day3", "Day4"] },
+  { "term": "API Key", "fullName": "Application Programming Interface Key", "chinese": "接口密钥", "definition": "天气API的通行证，每人独立申请。免费套餐限20次/分钟。", "usedIn": ["Day4"] },
+  { "term": "GND", "fullName": "Ground", "chinese": "接地/地线", "definition": "所有模块的公共参考电位，必须共地连接。", "usedIn": ["Day1", "Day2", "Day3", "Day4"] },
+  { "term": "VCC", "fullName": "Voltage Common Collector", "chinese": "正极电源", "definition": "供电正极。注意区分5V和3.3V模块！", "usedIn": ["Day1"] },
+  { "term": "TTS", "fullName": "Text-to-Speech", "chinese": "文字转语音", "definition": "ASRPRO和ESP32C3将文字转为语音播报。", "usedIn": ["Day2", "Day4"] },
+  { "term": "LLM", "fullName": "Large Language Model", "chinese": "大语言模型", "definition": "如DeepSeek、通义千问。ESP32C3通过WiFi调用云端LLM API实现AI对话。", "usedIn": ["Day4"] },
+  { "term": "MEMS", "fullName": "Micro-Electro-Mechanical Systems", "chinese": "微电机械系统", "definition": "BMP280内部的微型气压传感器，芯片仅2mm×2.5mm。", "usedIn": ["Day3"] },
+  { "term": "NTP", "fullName": "Network Time Protocol", "chinese": "网络时间协议", "definition": "ESP01s通过NTP或HTTP接口获取准确的网络时间。", "usedIn": ["Day4"] }
+]

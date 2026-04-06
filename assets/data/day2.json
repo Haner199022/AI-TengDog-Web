@@ -1,0 +1,249 @@
+{
+  "day": 2,
+  "title": "嵌入式编程与语音交互",
+  "titleEn": "Embedded Voice",
+  "layer": "固件层",
+  "objectives": [
+    "使用天问Block IDE完成STM32程序下载",
+    "理解ASRPRO离线语音识别的工作原理",
+    "修改语音唤醒词、欢迎语、命令词",
+    "实现：喊唤醒词 → 电子狗执行至少5个动作"
+  ],
+  "schedule": [
+    { "time": "09:00-09:20", "duration": "20min", "title": "Day 1复习 + Q&A" },
+    { "time": "09:20-10:30", "duration": "70min", "title": "天问Block IDE入门" },
+    { "time": "10:40-12:00", "duration": "80min", "title": "OLED显示 + PWM舵机编程" },
+    { "time": "13:30-14:30", "duration": "60min", "title": "ASRPRO语音模块配置" },
+    { "time": "14:30-15:30", "duration": "60min", "title": "语音→动作串口协议实现" },
+    { "time": "15:40-16:30", "duration": "50min", "title": "UART调试与排障" },
+    { "time": "16:30-17:00", "duration": "30min", "title": "演示 + 总结" }
+  ],
+  "cards": [
+    {
+      "id": "d2_c1",
+      "front": "天问Block IDE",
+      "frontSub": "图形化编程工具",
+      "back": "积木式编程软件，支持STM32和ASRPRO双芯片。有两个标签页：STM32标签（主控程序）和ASRPRO标签（语音程序）。拖拽积木完成编程，不需要手写代码。",
+      "tags": ["编程工具"]
+    },
+    {
+      "id": "d2_c2",
+      "front": "OLED显示流程",
+      "frontSub": "4步必须按顺序",
+      "back": "① 初始化OLED(PB8, PB9) → ② 清屏 → ③ 显示文字/表情 → ④ OLED刷新。第4步「刷新」最容易忘！不刷新则屏幕不更新。共12种预设表情（Face_happy等）。",
+      "tags": ["OLED", "编程"]
+    },
+    {
+      "id": "d2_c3",
+      "front": "@动作码#$",
+      "frontSub": "ASRPRO→STM32指令协议",
+      "back": "ASRPRO识别语音后，通过UART发送字符串给STM32。格式：@ + 动作码 + #$。例：@LIZHENG#$ = 立正，@PAXIA#$ = 趴下。STM32收到@开始缓冲，收到#$后提取动作码执行。",
+      "tags": ["协议", "语音"]
+    },
+    {
+      "id": "d2_c4",
+      "front": "ASRPRO工作流程",
+      "frontSub": "离线语音AI",
+      "back": "麦克风采集声音 → 神经网络处理（240MHz，完全离线）→ 识别唤醒词？→ 进入唤醒态(180秒) → 识别命令词 → TTS播报 + 串口发送@动作码#$给STM32。",
+      "tags": ["语音", "ASRPRO"]
+    },
+    {
+      "id": "d2_c5",
+      "front": "唤醒词设计原则",
+      "frontSub": "2条规则",
+      "back": "① 2-4个汉字，发音清晰（太短容易误触发）\n② 不要用太常见的词（如「你好」，日常对话会误唤醒）\n默认可选：曼波 / 哈基米 / 小乔 / 小智 / 狗蛋",
+      "tags": ["语音", "设计"]
+    },
+    {
+      "id": "d2_c6",
+      "front": "生成模型 + 下载",
+      "frontSub": "修改语音后必做步骤",
+      "back": "修改命令词后必须：① 点击「生成模型」(云端编译1-3分钟) → ② 「4M编译下载」→ ③ 用ASR-LINK下载器烧录(TXD→25孔, RXD→24孔) → ④ 芯片选ASRPRO-4M。下载前断开主电源！",
+      "tags": ["语音", "ASRPRO"]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "d2_q1",
+      "question": "电子狗听到你说话后执行动作，这个过程中 ASRPRO 和 STM32 各负责什么？",
+      "answer": "ASRPRO 负责「听懂语音」（语音识别）。\nSTM32 负责「控制动作」（驱动舵机）。\n两者通过UART串口用 @动作码#$ 格式通信。",
+      "tags": ["ASRPRO", "STM32"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q2",
+      "question": "ASRPRO向STM32发送指令的格式是什么？举一个具体例子。",
+      "answer": "格式：@ + 动作码 + #$\n例如：@LIZHENG#$ 表示立正\n@PAXIA#$ 表示趴下\n@QIANJIN#$ 表示前进",
+      "tags": ["协议"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q3",
+      "question": "如果你想新增一个命令叫「转圈圈」，串口指令怎么写？",
+      "answer": "@ZHUANQUAN#$ 或任何你自定义的拼音/英文名。\n规则只有一个：@开头，#$结尾，中间是自定义动作名。",
+      "tags": ["协议", "编程"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q4",
+      "question": "唤醒词设计有哪两个原则？",
+      "answer": "① 2-4个汉字，发音清晰 — 太短容易误触发\n② 不要用太常见的词 — 否则日常说话会误唤醒电子狗",
+      "tags": ["语音", "设计"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q5",
+      "question": "修改语音命令词之后，为什么不能直接用？必须做什么步骤？",
+      "answer": "必须「生成模型」→「4M编译下载」→ 烧录到ASRPRO芯片。\n因为ASRPRO用神经网络模型识别语音，修改后需要重新训练模型并写入芯片，否则芯片里还是旧模型。",
+      "tags": ["ASRPRO"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d2_q6",
+      "question": "天问Block里有两个标签页，分别是什么？各管什么？",
+      "answer": "① STM32 标签 — 主控程序（舵机控制、传感器读取）\n② ASRPRO 标签 — 语音程序（唤醒词、命令词、播报内容）",
+      "tags": ["编程工具"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q7",
+      "question": "OLED显示文字需要哪4个积木步骤？最容易忘的是哪步？",
+      "answer": "① 初始化OLED → ② 清屏 → ③ 显示文字 → ④ OLED刷新。\n最容易忘的是第4步「刷新」！不刷新屏幕不会更新。",
+      "tags": ["OLED", "编程"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d2_q8",
+      "question": "舵机角度和脉宽的计算公式是什么？90°对应多少微秒？",
+      "answer": "脉宽(µs) = 角度/180 × 2000 + 500\n90°对应：90/180 × 2000 + 500 = 1500µs\n注意：左右腿角度需反向！",
+      "tags": ["PWM", "舵机"],
+      "difficulty": "medium"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "d2_cl1",
+      "phase": "A",
+      "title": "软件安装与连接",
+      "items": [
+        "安装天问Block IDE（避免中文路径）",
+        "安装CH340驱动",
+        "USB连接STM32，选择正确串口",
+        "连接状态栏变绿"
+      ]
+    },
+    {
+      "id": "d2_cl2",
+      "phase": "B",
+      "title": "OLED + 舵机编程",
+      "items": [
+        "OLED显示Hello TengDog成功",
+        "12种表情循环显示正常",
+        "4条腿立正（全部90°）",
+        "趴下动作（全部20°）"
+      ]
+    },
+    {
+      "id": "d2_cl3",
+      "phase": "C",
+      "title": "语音配置与下载",
+      "items": [
+        "修改欢迎语",
+        "修改唤醒词",
+        "新增至少1个自定义命令词",
+        "生成模型成功",
+        "4M编译下载完成",
+        "测试：喊唤醒词有响应"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "d2_g1",
+      "title": "协议拼装",
+      "desc": "拼出正确的ASRPRO→STM32通信协议",
+      "icon": "🔧",
+      "type": "protocol_builder",
+      "data": {
+        "protocolName": "ASRPRO→STM32 串口协议",
+        "rounds": [
+          {
+            "instruction": "当语音识别到「立正」，ASRPRO发送什么给STM32？拼出完整指令：",
+            "slots": [
+              { "answer": "@", "placeholder": "?" },
+              { "answer": "LIZHENG", "placeholder": "动作码" },
+              { "answer": "#$", "placeholder": "?" }
+            ],
+            "options": [
+              { "value": "@", "label": "@（起始符）" },
+              { "value": "LIZHENG", "label": "LIZHENG" },
+              { "value": "#$", "label": "#$（结束符）" },
+              { "value": "PAXIA", "label": "PAXIA" },
+              { "value": "!", "label": "!（干扰项）" }
+            ]
+          },
+          {
+            "instruction": "设计一个新动作「摇尾巴」的指令格式：",
+            "slots": [
+              { "answer": "@", "placeholder": "?" },
+              { "answer": "YAOWEIBA", "placeholder": "动作码" },
+              { "answer": "#$", "placeholder": "?" }
+            ],
+            "options": [
+              { "value": "@", "label": "@（起始符）" },
+              { "value": "YAOWEIBA", "label": "YAOWEIBA" },
+              { "value": "#$", "label": "#$（结束符）" },
+              { "value": "摇尾巴", "label": "摇尾巴（中文）" },
+              { "value": "$$", "label": "$$（干扰项）" }
+            ]
+          },
+          {
+            "instruction": "STM32收到数据后，如何判断一条完整指令？",
+            "slots": [
+              { "answer": "start", "placeholder": "开始标记" },
+              { "answer": "buffer", "placeholder": "中间处理" },
+              { "answer": "end", "placeholder": "结束标记" }
+            ],
+            "options": [
+              { "value": "start", "label": "收到@开始缓冲" },
+              { "value": "buffer", "label": "逐字符存入缓冲区" },
+              { "value": "end", "label": "收到#$提取动作码" },
+              { "value": "wrong1", "label": "收到换行符结束" },
+              { "value": "wrong2", "label": "固定长度截取" }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "d2_g2",
+      "title": "OLED四步法",
+      "desc": "排出OLED显示的正确步骤",
+      "icon": "📺",
+      "type": "sorting",
+      "data": {
+        "instruction": "OLED显示内容需要4个步骤，排出正确顺序：",
+        "steps": [
+          { "id": "s1", "text": "① 初始化OLED (PB8, PB9)" },
+          { "id": "s2", "text": "② 清屏" },
+          { "id": "s3", "text": "③ 显示文字/表情" },
+          { "id": "s4", "text": "④ OLED刷新（最容易忘！）" }
+        ]
+      }
+    }
+  ],
+  "summary": [
+    { "keyword": "ASRPRO", "oneliner": "完全离线的语音AI芯片，240MHz神经网络处理器" },
+    { "keyword": "天问Block", "oneliner": "图形化积木编程IDE，支持STM32+ASRPRO" },
+    { "keyword": "@动作码#$", "oneliner": "ASRPRO向STM32发命令的字符串协议" },
+    { "keyword": "ASR-LINK", "oneliner": "ASRPRO专用下载器，TXD→25孔，RXD→24孔" },
+    { "keyword": "唤醒态", "oneliner": "喊唤醒词后进入，默认180秒内命令词有效" },
+    { "keyword": "生成模型", "oneliner": "修改语音程序后必须云端编译再下载" }
+  ],
+  "teacherNotes": [
+    { "topic": "天问Block安装", "note": "提前把安装包拷贝到U盘，课上分发。Mac需要在安全设置里放行。" },
+    { "topic": "ASR-LINK下载", "note": "下载前务必断开主电源。芯片必须选4M不是2M，每年都有人选错。" },
+    { "topic": "自定义动作", "note": "鼓励学生设计原创动作，至少涉及3个舵机+表情切换。" },
+    { "topic": "串口调试", "note": "带学生打开SSCOM观察@动作码#$的实际传输，加深理解。" }
+  ]
+}

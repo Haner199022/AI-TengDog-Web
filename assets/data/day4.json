@@ -1,0 +1,265 @@
+{
+  "day": 4,
+  "title": "云端AI集成与系统展示",
+  "titleEn": "Cloud AI & Demo",
+  "layer": "智能层",
+  "objectives": [
+    "理解边缘AI + 云端AI的混合推理架构",
+    "配置ESP01s获取实时时间和天气",
+    "开启ESP32C3 AI自由对话",
+    "完成完整系统演示汇报（2分钟）"
+  ],
+  "schedule": [
+    { "time": "09:00-09:20", "duration": "20min", "title": "Day 3复习 + 冲刺动员" },
+    { "time": "09:20-10:30", "duration": "70min", "title": "边缘AI架构 + ESP32C3配置" },
+    { "time": "10:40-12:00", "duration": "80min", "title": "ESP01s时间/天气API实现" },
+    { "time": "13:30-15:10", "duration": "100min", "title": "完整系统联调" },
+    { "time": "15:20-16:10", "duration": "50min", "title": "演示汇报准备" },
+    { "time": "16:10-17:00", "duration": "50min", "title": "成果展示 + 结业" }
+  ],
+  "cards": [
+    {
+      "id": "d4_c1",
+      "front": "边缘AI + 云端AI",
+      "frontSub": "混合推理架构",
+      "back": "ASRPRO = 离线AI（边缘端），快速响应<100ms，不依赖网络。\nESP32C3 = 在线AI（云端），调用DeepSeek/通义等大模型，2-5秒延迟。\n简单任务本地处理，复杂任务上云。两者并存，互为补充。",
+      "tags": ["架构", "AI"]
+    },
+    {
+      "id": "d4_c2",
+      "front": "ESP32C3mini",
+      "frontSub": "RISC-V WiFi AI模块",
+      "back": "RISC-V 32位单核160MHz，4MB Flash，WiFi+BLE5.0。支持通义千问、DeepSeek、Kimi、豆包、混元。语音切换：「切换通义」「切换深度求索」等。15针引脚接PCB。配网方式：手机App扫码 或 串口AT指令。",
+      "tags": ["ESP32C3", "WiFi"]
+    },
+    {
+      "id": "d4_c3",
+      "front": "ESP01s HTTP请求",
+      "frontSub": "AT指令 + API调用",
+      "back": "ESP8266EX芯片，3.3V严禁5V！CH_PD必须接高电平。\nAT指令流程：AT+CWMODE=1 → AT+CWJAP连WiFi → AT+CIPSTART建TCP → AT+CIPSEND发送GET请求 → 接收+IPD响应数据。\n用于获取实时时间和天气。",
+      "tags": ["ESP01s", "HTTP"]
+    },
+    {
+      "id": "d4_c4",
+      "front": "心知天气 API",
+      "frontSub": "Seniverse Weather API",
+      "back": "注册seniverse.com获取免费API Key（20次/分钟）。\nGET请求：api.seniverse.com/v3/weather/now.json?key=xxx&location=beijing\n返回JSON：{text:天气描述, temperature:温度}。\n每组独立Key，防止额度冲突。",
+      "tags": ["API", "天气"]
+    }
+  ],
+  "quiz": [
+    {
+      "id": "d4_q1",
+      "question": "为什么电子狗需要两个AI（ASRPRO和ESP32C3）并存？不能只用云端AI吗？",
+      "answer": "简单任务（唤醒、基础动作）需要快速响应且不依赖网络 → 用ASRPRO离线AI。\n复杂任务（自由对话、知识问答）需要大模型能力 → 用ESP32C3云端AI。\n如果只用云端AI，没WiFi就完全不能用，且响应延迟大。",
+      "tags": ["架构"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d4_q2",
+      "question": "ESP01s和ESP32C3分别负责什么？它们都用WiFi，区别是什么？",
+      "answer": "ESP01s → 获取实时时间和天气（简单HTTP GET请求）\nESP32C3 → 连接云端大模型进行AI对话（复杂交互）\n前者做简单数据获取，后者做复杂AI推理。",
+      "tags": ["ESP01s", "ESP32C3"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d4_q3",
+      "question": "ESP32C3配网的正确步骤是什么？",
+      "answer": "① 关闭ESP32C3电源\n② 打开手机App，选择「配网」\n③ 输入WiFi名称和密码\n④ 手机靠近ESP32C3\n⑤ 重新上电\n关键：必须先关电源再配网，带电配网会失败。",
+      "tags": ["ESP32C3", "WiFi"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d4_q4",
+      "question": "修改蓝牙名称为TengDog的AT指令怎么写？",
+      "answer": "AT+NAME=TengDog\n执行后回复OK=成功。\n其他常用：AT+PIN=1234（改密码）、AT+RESET（重启）。",
+      "tags": ["蓝牙", "AT指令"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d4_q5",
+      "question": "使用天气API前需要做什么？为什么每人需要自己的Key？",
+      "answer": "需要注册seniverse.com账号，申请API Key。\n每人独立Key因为：① 服务器靠Key识别身份 ② 免费套餐限20次/分钟，共用会互相影响额度。",
+      "tags": ["API"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d4_q6",
+      "question": "AI对话响应很慢（>10秒），可能是什么原因？怎么解决？",
+      "answer": "① WiFi信号弱（距路由器太远）→ 靠近路由器\n② 模型响应慢 → 换更快的模型（如DeepSeek）\n③ 对话内容太长 → 缩短提问",
+      "tags": ["调试"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d4_q7",
+      "question": "ESP01s最常见的故障是什么？CH_PD引脚必须怎么接？",
+      "answer": "最常见故障：误接5V烧毁（ESP01s只能3.3V！）\nCH_PD引脚必须接3.3V高电平，否则芯片不工作。这是最容易遗漏的接线。",
+      "tags": ["ESP01s", "安全"],
+      "difficulty": "medium"
+    },
+    {
+      "id": "d4_q8",
+      "question": "用一句话概括「边缘AI + 云端AI混合推理架构」的核心思想。",
+      "answer": "简单任务在本地芯片处理（快速、离线可用），复杂任务上传云端大模型处理（能力强、需联网）。两者并存，互为补充。",
+      "tags": ["架构"],
+      "difficulty": "easy"
+    }
+  ],
+  "checklist": [
+    {
+      "id": "d4_cl1",
+      "phase": "A",
+      "title": "ESP32C3 AI对话",
+      "items": [
+        "ESP32C3配网成功（WiFi已连接）",
+        "选择大模型（通义/DeepSeek/Kimi）",
+        "语音「开启自由对话」→ AI模式就绪",
+        "向AI提问至少1个问题并获得回复"
+      ]
+    },
+    {
+      "id": "d4_cl2",
+      "phase": "B",
+      "title": "ESP01s 时间天气",
+      "items": [
+        "ESP01s接线确认（3.3V + CH_PD接高）",
+        "填入WiFi名称/密码/API Key",
+        "语音「获取实时时间」→ 播报成功",
+        "语音「获取实时天气」→ 播报成功"
+      ]
+    },
+    {
+      "id": "d4_cl3",
+      "phase": "C",
+      "title": "全链路联调",
+      "items": [
+        "通电OLED显示+ASRPRO欢迎语",
+        "语音控制立正/趴下/前进正常",
+        "OLED实时显示温度/湿度",
+        "手机蓝牙4方向控制正常",
+        "AI自由对话正常",
+        "获取时间/天气正常"
+      ]
+    }
+  ],
+  "games": [
+    {
+      "id": "d4_g1",
+      "title": "边缘 vs 云端",
+      "desc": "判断任务该用离线AI还是云端AI",
+      "icon": "🧠",
+      "type": "architecture_choice",
+      "data": {
+        "scenarios": [
+          {
+            "description": "用户说「立正」，电子狗需要站起来。这个任务应该由哪个AI处理？",
+            "choices": [
+              { "icon": "⚡", "label": "ASRPRO（离线边缘AI）", "correct": true },
+              { "icon": "☁️", "label": "ESP32C3（云端AI）", "correct": false }
+            ],
+            "explanation": "简单动作命令由ASRPRO离线处理，响应<100ms，不依赖网络。"
+          },
+          {
+            "description": "用户问「今天北京天气怎么样？」，电子狗需要给出回答。",
+            "choices": [
+              { "icon": "⚡", "label": "ASRPRO（离线边缘AI）", "correct": false },
+              { "icon": "☁️", "label": "ESP32C3（云端AI）", "correct": true }
+            ],
+            "explanation": "需要实时数据和复杂语义理解，必须通过云端AI + API获取。"
+          },
+          {
+            "description": "用户说「你觉得人工智能的未来会怎样？」",
+            "choices": [
+              { "icon": "⚡", "label": "ASRPRO（离线边缘AI）", "correct": false },
+              { "icon": "☁️", "label": "ESP32C3（云端AI大模型）", "correct": true }
+            ],
+            "explanation": "开放式对话需要大语言模型（DeepSeek/通义千问等），只有云端AI能处理。"
+          },
+          {
+            "description": "WiFi突然断了，用户说「趴下」。电子狗能执行吗？",
+            "choices": [
+              { "icon": "✅", "label": "能！ASRPRO离线工作，不需要WiFi", "correct": true },
+              { "icon": "❌", "label": "不能，所有AI都需要网络", "correct": false }
+            ],
+            "explanation": "这就是混合架构的优势：简单命令走离线AI，断网也能用基本功能。"
+          },
+          {
+            "description": "设计一个新功能：电子狗每天早上自动播报天气。应该用什么方案？",
+            "choices": [
+              { "icon": "⚡", "label": "纯ASRPRO实现", "correct": false },
+              { "icon": "🔗", "label": "ESP01s发HTTP请求获取天气API数据", "correct": true }
+            ],
+            "explanation": "需要联网获取实时天气数据，ESP01s通过AT指令发HTTP GET请求调用心知天气API。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "d4_g2",
+      "title": "API请求拼装",
+      "desc": "组装一个完整的HTTP天气请求",
+      "icon": "🌐",
+      "type": "api_builder",
+      "data": {
+        "steps": [
+          {
+            "instruction": "第1步：ESP01s需要先设置WiFi模式，应该用哪个AT指令？",
+            "preview": "AT+CWMODE=?",
+            "options": [
+              { "value": "1", "label": "AT+CWMODE=1（Station模式）" },
+              { "value": "2", "label": "AT+CWMODE=2（AP模式）" },
+              { "value": "3", "label": "AT+CWMODE=3（混合模式）" }
+            ],
+            "correctValue": "1",
+            "explanation": "Station模式（=1）让ESP01s作为客户端连接WiFi路由器。"
+          },
+          {
+            "instruction": "第2步：连接WiFi后，要建立TCP连接到天气API服务器，用什么指令？",
+            "preview": "AT+CIPSTART=\"TCP\",\"api.seniverse.com\",?",
+            "options": [
+              { "value": "80", "label": "端口 80（HTTP）" },
+              { "value": "443", "label": "端口 443（HTTPS）" },
+              { "value": "8080", "label": "端口 8080" }
+            ],
+            "correctValue": "80",
+            "explanation": "HTTP默认端口是80。ESP01s资源有限，通常使用HTTP而非HTTPS。"
+          },
+          {
+            "instruction": "第3步：发送GET请求，URL中必须包含什么参数才能获取天气？",
+            "preview": "GET /v3/weather/now.json?___=xxx&location=beijing",
+            "options": [
+              { "value": "key", "label": "key（API密钥）" },
+              { "value": "token", "label": "token（令牌）" },
+              { "value": "password", "label": "password（密码）" }
+            ],
+            "correctValue": "key",
+            "explanation": "心知天气API需要key参数传入你的API密钥，每组应有独立的Key。"
+          },
+          {
+            "instruction": "第4步：收到服务器响应数据，格式是什么？",
+            "preview": "+IPD,xxx:{\"results\":[...]}",
+            "options": [
+              { "value": "json", "label": "JSON格式" },
+              { "value": "xml", "label": "XML格式" },
+              { "value": "csv", "label": "CSV格式" }
+            ],
+            "correctValue": "json",
+            "explanation": "现代API基本都返回JSON格式，包含text(天气描述)和temperature(温度)字段。"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": [
+    { "keyword": "混合推理", "oneliner": "离线AI(ASRPRO) + 云端AI(ESP32C3) 并存互补" },
+    { "keyword": "ESP32C3", "oneliner": "RISC-V WiFi+BLE5.0，接大模型，电子狗的在线大脑" },
+    { "keyword": "ESP01s", "oneliner": "ESP8266EX，3.3V，AT指令HTTP请求获取时间天气" },
+    { "keyword": "API Key", "oneliner": "天气API通行证，每人独立申请，限20次/分钟" }
+  ],
+  "teacherNotes": [
+    { "topic": "WiFi热点", "note": "Day4核心依赖WiFi，建议教师准备独立热点备用，不依赖学校网络。" },
+    { "topic": "API Key", "note": "提前注册好每组的Key，当天分发。有学生会忘记注册。" },
+    { "topic": "唤醒词冲突", "note": "ASRPRO和ESP32C3可能都响应「小智」，建议改ASRPRO唤醒词为「哈基米」。" },
+    { "topic": "演示评分", "note": "功能完整性30分+技术说明20分+流畅度20分+创意15分+团队15分=100分。" }
+  ]
+}

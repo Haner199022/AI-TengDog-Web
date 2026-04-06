@@ -1,0 +1,72 @@
+{
+  "day": 0,
+  "title": "预习：AI与机器人入门",
+  "titleEn": "Preview",
+  "layer": "预习",
+  "objectives": [
+    "了解什么是AI电子狗、它能做什么",
+    "认识Workshop 4天的学习路线",
+    "预习基础电子概念：电压、电流、芯片"
+  ],
+  "schedule": [],
+  "cards": [
+    {
+      "id": "d0_c1",
+      "front": "AI电子狗是什么？",
+      "frontSub": "TengDog Overview",
+      "back": "一个能听懂语音、会做动作、能聊天的四足机器狗。由3块芯片协作：STM32（大脑）、ASRPRO（耳朵）、ESP32C3（WiFi大脑）。4天从零组装到能对话！",
+      "tags": ["概述"]
+    },
+    {
+      "id": "d0_c2",
+      "front": "4天学什么？",
+      "frontSub": "Workshop Roadmap",
+      "back": "Day1 硬件层：认识零件、组装机体\nDay2 固件层：编程、语音控制\nDay3 感知层：传感器、蓝牙遥控\nDay4 智能层：WiFi、AI大模型对话",
+      "tags": ["路线"]
+    },
+    {
+      "id": "d0_c3",
+      "front": "电压与电流",
+      "frontSub": "Voltage & Current",
+      "back": "电压(V)像水压，推动电流流动。电流(A)像水流量。电子狗用锂电池3.7V供电。不同模块需要不同电压：5V给舵机，3.3V给传感器。接错电压会烧模块！",
+      "tags": ["电学基础"]
+    },
+    {
+      "id": "d0_c4",
+      "front": "什么是芯片？",
+      "frontSub": "Microchip",
+      "back": "芯片=微型计算机，指甲盖大小却能执行数百万次运算。电子狗的STM32芯片有72MHz主频，每秒运算7200万次。芯片通过「引脚」连接外部模块。",
+      "tags": ["电学基础"]
+    }
+  ],
+  "games": [],
+  "quiz": [
+    {
+      "id": "d0_q1",
+      "question": "电子狗的三块核心芯片分别负责什么？（用一句话概括每块芯片）",
+      "answer": "STM32 = 大脑（运行主程序、协调模块）\nASRPRO = 耳朵和嘴巴（离线语音识别）\nESP32C3 = WiFi大脑（联网、云端AI对话）",
+      "tags": ["概述"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d0_q2",
+      "question": "为什么有些模块只能接3.3V不能接5V？",
+      "answer": "芯片内部电路设计只能承受3.3V。如果接了5V，超过芯片耐受范围，内部晶体管会被击穿导致永久损坏（烧毁）。AHT20、BMP280、ESP01s 都是3.3V模块。",
+      "tags": ["电学基础"],
+      "difficulty": "easy"
+    },
+    {
+      "id": "d0_q3",
+      "question": "Workshop 4天分别对应什么层？（提示：从下到上）",
+      "answer": "Day1 = 硬件层（组装机体）\nDay2 = 固件层（编程+语音）\nDay3 = 感知层（传感器+蓝牙）\nDay4 = 智能层（WiFi+AI大模型）\n从物理硬件到软件智能，自底向上。",
+      "tags": ["路线"],
+      "difficulty": "easy"
+    }
+  ],
+  "checklist": [],
+  "summary": [
+    { "keyword": "电子狗", "oneliner": "3芯片协作的AI四足机器狗" },
+    { "keyword": "4天路线", "oneliner": "硬件→固件→感知→智能，自底向上" },
+    { "keyword": "电压安全", "oneliner": "5V和3.3V不能混用，接错会烧" }
+  ]
+}

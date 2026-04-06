@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI电子狗 Workshop — 教师端</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <span class="logo"><span class="logo-icon">👨‍🏫</span> <span class="glow-text">教师端</span></span>
+    </div>
+    <div class="header-right">
+      <button id="themeToggle" title="切换主题">🌙</button>
+      <a href="index.html" class="btn btn-ghost btn-sm">🤖 学生端</a>
+    </div>
+  </header>
+
+  <!-- Day Nav -->
+  <nav id="dayNav">
+    <button class="day-tab active" data-day="1">
+      <span class="day-num">Day 1</span>
+      <span class="day-label">硬件层</span>
+    </button>
+    <button class="day-tab" data-day="2">
+      <span class="day-num">Day 2</span>
+      <span class="day-label">固件层</span>
+    </button>
+    <button class="day-tab" data-day="3">
+      <span class="day-num">Day 3</span>
+      <span class="day-label">感知层</span>
+    </button>
+    <button class="day-tab" data-day="4">
+      <span class="day-num">Day 4</span>
+      <span class="day-label">智能层</span>
+    </button>
+  </nav>
+
+  <!-- Mode Tabs -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-mode="present">📋 课堂展示</button>
+    <button class="mode-tab" data-mode="random">🎲 随机提问</button>
+    <button class="mode-tab" data-mode="grade">📝 批改模式</button>
+    <button class="mode-tab" data-mode="timer">⏱️ 计时器</button>
+    <button class="mode-tab" data-mode="overview">📊 课程概览</button>
+  </div>
+
+  <div class="teacher-main">
+
+    <!-- Mode 1: 课堂展示 -->
+    <section id="presentMode">
+      <div id="scheduleTimeline" class="schedule-timeline"></div>
+      <div id="presentContent" class="present-card">
+        <p style="color:var(--text-muted);">点击上方时间线选择环节</p>
+      </div>
+      <div id="teacherNoteArea"></div>
+    </section>
+
+    <!-- Mode 2: 随机提问 -->
+    <section id="randomMode" class="hidden">
+      <div class="present-card" id="randomCard">
+        <div id="randomTags" style="margin-bottom:12px;"></div>
+        <p class="quiz-question" id="randomQuestion" style="font-size:1.3rem;">点击下方按钮抽取题目</p>
+        <div id="randomAnswer" class="quiz-answer hidden" style="text-align:left;margin-top:1.5rem;">
+          <h4>参考答案</h4>
+          <pre id="randomAnswerText" style="font-size:1rem;"></pre>
+        </div>
+        <div id="randomMastery" class="hidden" style="margin-top:16px;">
+          <span style="font-size:0.9rem;color:var(--text-muted);">班级掌握情况：</span>
+          <div class="mastery-btn">
+            <button class="rate-btn rate-correct" onclick="markMastery('good')">👍 好</button>
+            <button class="rate-btn rate-fuzzy" onclick="markMastery('medium')">🤔 中</button>
+            <button class="rate-btn rate-wrong" onclick="markMastery('poor')">👎 差</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="randomQuestion()">🎲 换一题</button>
+        <button class="btn btn-ghost" id="showRandomAnswer" onclick="showRandomAnswer()">显示答案</button>
+        <button class="btn btn-ghost" onclick="randomQuestion(); showRandomAnswer();">直接看题+答案</button>
+      </div>
+      <div id="masteryLog" style="margin-top:16px;"></div>
+    </section>
+
+    <!-- Mode 3: 批改模式 -->
+    <section id="gradeMode" class="hidden">
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="margin-bottom:12px;">输入学生进度码</h3>
+        <div class="grade-input-area">
+          <input type="text" id="gradeCodeInput" placeholder="粘贴学生生成的进度码...">
+          <button class="btn btn-primary" onclick="decodeStudentCode()">解码</button>
+        </div>
+      </div>
+      <div id="gradeResult"></div>
+      <div id="exportArea" class="hidden" style="margin-top:12px;display:flex;gap:8px;">
+        <button class="btn btn-primary" onclick="exportFeedback()">📋 复制反馈文字</button>
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ 打印批改结果</button>
+      </div>
+    </section>
+
+    <!-- Mode 4: 计时器 -->
+    <section id="timerMode" class="hidden">
+      <div class="present-card">
+        <div id="timerDisplay" class="timer-display">25:00</div>
+        <div id="timerLabel" style="text-align:center;color:var(--text-muted);margin-top:8px;font-size:0.9rem;"></div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:20px;">
+          <button class="btn btn-primary" onclick="toggleTimer()" id="timerToggleBtn">▶ 开始</button>
+          <button class="btn btn-ghost" onclick="resetTimer()">↺ 重置</button>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center;margin-top:16px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(5)">5min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(10)">10min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(15)">15min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(20)">20min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(25)">25min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(30)">30min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(50)">50min</button>
+          <button class="btn btn-ghost btn-sm" onclick="setTimer(60)">60min</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mode 5: 课程概览 -->
+    <section id="overviewMode" class="hidden">
+      <div class="card" style="margin-bottom:16px;">
+        <h3 style="margin-bottom:12px;">Day <span id="overviewDayNum">1</span> 课程概览</h3>
+        <div id="overviewObjectives"></div>
+      </div>
+      <div class="overview-grid">
+        <div class="card">
+          <h4 style="margin-bottom:10px;">📖 知识卡片 (<span id="ovCardCount">0</span>)</h4>
+          <div id="overviewCards"></div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:10px;">🎮 互动游戏 (<span id="ovGameCount">0</span>)</h4>
+          <div id="overviewGames"></div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:10px;">❓ 问答题目 (<span id="ovQuizCount">0</span>)</h4>
+          <div id="overviewQuiz"></div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:10px;">⚠️ 教师备注</h4>
+          <div id="overviewNotes"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // ===== Teacher App v2 =====
+    let tState = { currentDay: 1, days: {}, masteryLog: {} };
+    let timerSeconds = 25 * 60;
+    let timerRunning = false;
+    let timerInterval = null;
+    let currentRandomQ = null;
+    let decodedStudent = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      applyTheme();
+      await loadDay(1);
+      bindTeacherEvents();
+    });
+
+    // ===== Theme =====
+    function applyTheme() {
+      const theme = localStorage.getItem('tengdog_teacher_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    }
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('tengdog_teacher_theme', next);
+      document.getElementById('themeToggle').textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    // ===== Data Loading =====
+    async function loadDay(day) {
+      tState.currentDay = day;
+      if (!tState.days[day]) {
+        try {
+          const resp = await fetch(`assets/data/day${day}.json`);
+          tState.days[day] = await resp.json();
+        } catch (e) { console.warn(`Day ${day} load failed`); return; }
+      }
+      document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = document.querySelector(`.day-tab[data-day="${day}"]`);
+      if (activeTab) activeTab.classList.add('active');
+      renderScheduleTimeline();
+      renderMasteryLog();
+      renderOverview();
+    }
+
+    function bindTeacherEvents() {
+      document.querySelectorAll('.day-tab').forEach(t => {
+        t.addEventListener('click', () => loadDay(parseInt(t.dataset.day)));
+      });
+      document.querySelectorAll('.mode-tab').forEach(t => {
+        t.addEventListener('click', () => switchMode(t.dataset.mode));
+      });
+    }
+
+    function switchMode(mode) {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.mode-tab[data-mode="${mode}"]`).classList.add('active');
+      ['presentMode', 'randomMode', 'gradeMode', 'timerMode', 'overviewMode'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(mode + 'Mode').classList.remove('hidden');
+    }
+
+    // ===== Present Mode — Timeline =====
+    function renderScheduleTimeline() {
+      const data = tState.days[tState.currentDay];
+      if (!data || !data.schedule || data.schedule.length === 0) {
+        document.getElementById('scheduleTimeline').innerHTML =
+          '<p style="color:var(--text-muted);font-size:0.85rem;">本日无课程安排</p>';
+        return;
+      }
+
+      document.getElementById('scheduleTimeline').innerHTML = `
+        <div class="timeline">
+          ${data.schedule.map((s, i) => `
+            <div class="timeline-item" onclick="showScheduleItem(${i})">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <span class="timeline-time">${s.time}</span>
+                <span class="timeline-duration">${s.duration}</span>
+                <span class="timeline-title">${s.title}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    function showScheduleItem(index) {
+      const data = tState.days[tState.currentDay];
+      const s = data.schedule[index];
+
+      // Highlight active timeline item
+      document.querySelectorAll('.timeline-item').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+
+      // Build content: show relevant cards based on schedule slot
+      let content = `
+        <h3 style="margin-bottom:4px;">${s.title}</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:16px;">${s.time} · ${s.duration}</p>`;
+
+      // Show all cards (teacher can scroll through)
+      data.cards.forEach(c => {
+        content += `
+          <div style="margin-bottom:20px;text-align:left;padding:16px;background:var(--bg-glass);border-radius:var(--radius-sm);border:1px solid var(--border-glass);">
+            <h4 style="color:var(--accent-cyan);margin-bottom:4px;">${c.front}
+              <span style="font-size:0.8rem;color:var(--text-muted);font-weight:400;">${c.frontSub || ''}</span>
+            </h4>
+            <p style="font-size:1.05rem;line-height:1.7;color:var(--text-primary);white-space:pre-line;">${c.back}</p>
+          </div>`;
+      });
+
+      document.getElementById('presentContent').innerHTML = content;
+
+      // Teacher notes
+      const notes = data.teacherNotes || [];
+      document.getElementById('teacherNoteArea').innerHTML = notes.map(n => `
+        <div class="teacher-note">
+          <strong>${n.topic}：</strong>${n.note}
+        </div>`).join('');
+    }
+
+    // ===== Random Question =====
+    function randomQuestion() {
+      const data = tState.days[tState.currentDay];
+      if (!data || !data.quiz) return;
+      const quiz = data.quiz;
+      const idx = Math.floor(Math.random() * quiz.length);
+      currentRandomQ = { ...quiz[idx], _idx: idx };
+
+      document.getElementById('randomTags').innerHTML =
+        currentRandomQ.tags.map(t => `<span class="badge badge-cyan">${t}</span>`).join(' ');
+      document.getElementById('randomQuestion').textContent =
+        `【第${idx + 1}/${quiz.length}题】${currentRandomQ.question}`;
+      document.getElementById('randomAnswer').classList.add('hidden');
+      document.getElementById('randomMastery').classList.add('hidden');
+    }
+
+    function showRandomAnswer() {
+      if (!currentRandomQ) return;
+      document.getElementById('randomAnswerText').textContent = currentRandomQ.answer;
+      document.getElementById('randomAnswer').classList.remove('hidden');
+      document.getElementById('randomMastery').classList.remove('hidden');
+    }
+
+    function markMastery(level) {
+      if (!currentRandomQ) return;
+      const key = `${tState.currentDay}_${currentRandomQ.id}`;
+      if (!tState.masteryLog[key]) tState.masteryLog[key] = [];
+      tState.masteryLog[key].push({
+        level, time: new Date().toLocaleTimeString(),
+        question: currentRandomQ.question.substring(0, 30)
+      });
+      renderMasteryLog();
+    }
+
+    function renderMasteryLog() {
+      const container = document.getElementById('masteryLog');
+      if (!container) return;
+      const entries = Object.entries(tState.masteryLog)
+        .filter(([k]) => k.startsWith(tState.currentDay + '_'));
+
+      if (entries.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">暂无提问记录</p>';
+        return;
+      }
+
+      const icons = { good: '👍', medium: '🤔', poor: '👎' };
+      const colors = { good: 'var(--success)', medium: 'var(--warning)', poor: 'var(--danger)' };
+
+      container.innerHTML = `
+        <div class="card" style="padding:16px;">
+          <h4 style="margin-bottom:8px;">本日提问记录 (${entries.length}题)</h4>
+          ${entries.map(([key, records]) => {
+            const latest = records[records.length - 1];
+            return `<div style="font-size:0.85rem;padding:4px 0;display:flex;gap:8px;align-items:center;">
+              <span>${icons[latest.level]}</span>
+              <span style="color:${colors[latest.level]};min-width:24px;font-weight:700;">${latest.level === 'good' ? '好' : latest.level === 'medium' ? '中' : '差'}</span>
+              <span style="color:var(--text-secondary);flex:1;">${latest.question || key}...</span>
+              <span style="color:var(--text-muted);font-size:0.75rem;">${latest.time}</span>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
+    // ===== Grade Mode =====
+    function decodeStudentCode() {
+      const code = document.getElementById('gradeCodeInput').value.trim();
+      if (!code) return;
+
+      try {
+        const json = decodeURIComponent(escape(atob(code)));
+        decodedStudent = JSON.parse(json);
+      } catch (e) {
+        document.getElementById('gradeResult').innerHTML =
+          '<div class="card" style="padding:16px;border-color:var(--danger);"><p style="color:var(--danger);">解码失败，请检查进度码是否完整。</p></div>';
+        return;
+      }
+
+      renderGradeResult();
+    }
+
+    async function renderGradeResult() {
+      const s = decodedStudent;
+      const day = s.day;
+
+      if (!tState.days[day]) {
+        const resp = await fetch(`assets/data/day${day}.json`);
+        tState.days[day] = await resp.json();
+      }
+      const data = tState.days[day];
+
+      const answers = s.quizAnswers || {};
+      let correct = 0, fuzzy = 0, wrong = 0;
+      const needReview = [];
+
+      let html = `
+        <div class="grade-result">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="width:48px;height:48px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:white;">
+              ${s.name ? s.name[0] : '?'}
+            </div>
+            <div>
+              <h3 style="margin:0;">${s.name} <span style="color:var(--text-muted);font-size:0.85rem;">${s.group || ''}</span></h3>
+              <p style="color:var(--text-muted);font-size:0.8rem;margin:2px 0 0;">Day ${s.day} · ${new Date(s.timestamp).toLocaleString()}</p>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+            <div style="background:var(--bg-glass);padding:10px;border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">知识卡片</div>
+              <div style="font-size:1.1rem;font-weight:700;color:var(--accent-cyan);">${(s.viewedCards || []).length}/${data.cards.length}</div>
+            </div>
+            <div style="background:var(--bg-glass);padding:10px;border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">互动游戏</div>
+              <div style="font-size:1.1rem;font-weight:700;color:var(--accent-green);">${(s.completedGames || []).length}/${(data.games || []).length}</div>
+            </div>
+            <div style="background:var(--bg-glass);padding:10px;border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">操作清单</div>
+              <div style="font-size:1.1rem;font-weight:700;color:var(--accent-purple);">${Object.values(s.checklist || {}).filter(v => v).length} 项</div>
+            </div>
+          </div>
+
+          <hr style="margin:16px 0;border:none;border-top:1px solid var(--border-glass);">
+          <h4 style="margin-bottom:10px;">问答详情</h4>`;
+
+      data.quiz.forEach((q, i) => {
+        const a = answers[q.id];
+        const rating = a?.selfRating || 'unanswered';
+        const ratingLabel = rating === 'correct' ? '✓ 会了' : rating === 'fuzzy' ? '⚠ 模糊' : rating === 'wrong' ? '✗ 不会' : '未作答';
+        const ratingColor = rating === 'correct' ? 'var(--success)' : rating === 'fuzzy' ? 'var(--warning)' : 'var(--danger)';
+
+        if (rating === 'correct') correct++;
+        else if (rating === 'fuzzy') { fuzzy++; needReview.push(`Q${i+1} ${q.question.substring(0,30)}`); }
+        else { wrong++; needReview.push(`Q${i+1} ${q.question.substring(0,30)}`); }
+
+        html += `
+          <div class="grade-item">
+            <div class="grade-item-q">
+              <strong>Q${i + 1}</strong> ${q.question}
+              <p>自评：<span style="color:${ratingColor};font-weight:bold;">${ratingLabel}</span></p>
+              ${a?.note ? `<p style="color:var(--accent-cyan);">学生笔记：${a.note}</p>` : ''}
+              <div class="grade-item-note">
+                <textarea placeholder="教师批注..." id="note_${q.id}"></textarea>
+              </div>
+            </div>
+          </div>`;
+      });
+
+      html += `
+          <hr style="margin:16px 0;border:none;border-top:1px solid var(--border-glass);">
+          <div class="summary-stats">
+            <div class="stat correct"><span class="stat-num">${correct}</span><span class="stat-label">✓ 会了</span></div>
+            <div class="stat fuzzy"><span class="stat-num">${fuzzy}</span><span class="stat-label">⚠ 模糊</span></div>
+            <div class="stat wrong"><span class="stat-num">${wrong}</span><span class="stat-label">✗ 不会</span></div>
+          </div>
+        </div>`;
+
+      document.getElementById('gradeResult').innerHTML = html;
+      document.getElementById('exportArea').classList.remove('hidden');
+      decodedStudent._stats = { correct, fuzzy, wrong, needReview };
+    }
+
+    function exportFeedback() {
+      const s = decodedStudent;
+      const data = tState.days[s.day];
+      const stats = s._stats;
+      const answers = s.quizAnswers || {};
+
+      let text = `【Day${s.day} 学习反馈】${s.name}\n`;
+      text += `完成情况：${stats.correct}/${data.quiz.length} 题掌握（${Math.round(stats.correct/data.quiz.length*100)}%）\n`;
+      text += `知识卡片：${(s.viewedCards||[]).length}/${data.cards.length} | 游戏：${(s.completedGames||[]).length}/${(data.games||[]).length}\n\n`;
+
+      const correctItems = data.quiz.filter(q => answers[q.id]?.selfRating === 'correct');
+      if (correctItems.length > 0) {
+        text += `已掌握：${correctItems.map(q => q.tags[0]).join('、')}\n\n`;
+      }
+
+      if (stats.needReview.length > 0) {
+        text += `需要复习：\n`;
+        data.quiz.forEach((q, i) => {
+          const a = answers[q.id];
+          if (a?.selfRating === 'fuzzy') {
+            const note = document.getElementById(`note_${q.id}`)?.value || '建议再看一遍知识卡片';
+            text += `⚠️ Q${i+1} ${q.question.substring(0,25)}... — ${note}\n`;
+          }
+          if (a?.selfRating === 'wrong' || !a) {
+            const note = document.getElementById(`note_${q.id}`)?.value || '重点复习';
+            text += `❌ Q${i+1} ${q.question.substring(0,25)}... — ${note}\n`;
+          }
+        });
+      }
+
+      text += `\n加油！💪`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('#exportArea .btn-primary');
+        btn.textContent = '✓ 已复制到剪贴板';
+        setTimeout(() => { btn.textContent = '📋 复制反馈文字'; }, 2000);
+      });
+    }
+
+    // ===== Timer =====
+    function setTimer(minutes) {
+      timerSeconds = minutes * 60;
+      updateTimerDisplay();
+      document.getElementById('timerLabel').textContent = `${minutes} 分钟`;
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('timerToggleBtn');
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        btn.textContent = '▶ 继续';
+      } else {
+        timerRunning = true;
+        btn.textContent = '⏸ 暂停';
+        timerInterval = setInterval(() => {
+          timerSeconds--;
+          if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = 0;
+            document.getElementById('timerLabel').textContent = '⏰ 时间到！';
+            btn.textContent = '▶ 开始';
+            // Flash effect
+            document.getElementById('timerDisplay').style.color = 'var(--danger)';
+            document.getElementById('timerDisplay').style.animation = 'pulse 0.5s ease infinite';
+          }
+          updateTimerDisplay();
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerSeconds = 25 * 60;
+      updateTimerDisplay();
+      document.getElementById('timerLabel').textContent = '';
+      document.getElementById('timerToggleBtn').textContent = '▶ 开始';
+      document.getElementById('timerDisplay').style.color = '';
+      document.getElementById('timerDisplay').style.animation = '';
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerSeconds / 60);
+      const s = timerSeconds % 60;
+      document.getElementById('timerDisplay').textContent =
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    // ===== Overview Mode =====
+    function renderOverview() {
+      const data = tState.days[tState.currentDay];
+      if (!data) return;
+
+      document.getElementById('overviewDayNum').textContent = data.day;
+
+      // Objectives
+      document.getElementById('overviewObjectives').innerHTML =
+        `<ul style="margin:0;padding-left:20px;">${data.objectives.map(o => `<li style="margin-bottom:4px;font-size:0.9rem;color:var(--text-secondary);">${o}</li>`).join('')}</ul>`;
+
+      // Cards
+      document.getElementById('ovCardCount').textContent = data.cards?.length || 0;
+      document.getElementById('overviewCards').innerHTML = (data.cards || []).map(c =>
+        `<div style="padding:8px 0;border-bottom:1px solid var(--border-glass);font-size:0.85rem;">
+          <strong style="color:var(--accent-cyan);">${c.front}</strong>
+          <span style="color:var(--text-muted);"> — ${c.frontSub || ''}</span>
+        </div>`
+      ).join('');
+
+      // Games
+      document.getElementById('ovGameCount').textContent = data.games?.length || 0;
+      document.getElementById('overviewGames').innerHTML = (data.games || []).length === 0
+        ? '<p style="color:var(--text-muted);font-size:0.85rem;">无游戏</p>'
+        : data.games.map(g =>
+          `<div style="padding:8px 0;border-bottom:1px solid var(--border-glass);font-size:0.85rem;">
+            <span>${g.icon}</span> <strong>${g.title}</strong>
+            <span style="color:var(--text-muted);"> — ${g.desc}</span>
+            <span class="badge badge-cyan" style="font-size:0.7rem;margin-left:4px;">${g.type}</span>
+          </div>`
+        ).join('');
+
+      // Quiz
+      document.getElementById('ovQuizCount').textContent = data.quiz?.length || 0;
+      document.getElementById('overviewQuiz').innerHTML = (data.quiz || []).map((q, i) =>
+        `<div style="padding:8px 0;border-bottom:1px solid var(--border-glass);font-size:0.85rem;">
+          <strong>Q${i + 1}</strong> ${q.question.substring(0, 60)}${q.question.length > 60 ? '...' : ''}
+          <span class="badge badge-cyan" style="font-size:0.65rem;margin-left:4px;">${q.difficulty || ''}</span>
+        </div>`
+      ).join('');
+
+      // Teacher notes
+      document.getElementById('overviewNotes').innerHTML = (data.teacherNotes || []).map(n =>
+        `<div class="teacher-note"><strong>${n.topic}：</strong>${n.note}</div>`
+      ).join('');
+    }
+  </script>
+</body>
+</html>
